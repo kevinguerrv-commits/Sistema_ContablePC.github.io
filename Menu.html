@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema Contable — Menú Principal</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cafe-oscuro:  #3e2723;
+    --cafe-medio:   #6d4c41;
+    --cafe-suave:   #8d6e63;
+    --cafe-claro:   #bcaaa4;
+    --crema:        #f5f1eb;
+    --crema-suave:  #ede7df;
+    --dorado:       #c8a96e;
+    --texto:        #2c1a14;
+    --blanco:       #ffffff;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--crema);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  /* Fondo decorativo */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 15% 20%, rgba(109,76,65,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 80%, rgba(141,110,99,0.06) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 860px;
+    position: relative;
+  }
+
+  /* Encabezado */
+  header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .logo-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .logo-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--cafe-medio);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+  }
+
+  .logo-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cafe-suave);
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 700;
+    color: var(--cafe-oscuro);
+    line-height: 1.1;
+    margin-bottom: 0.8rem;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+    color: var(--cafe-suave);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+
+  .divider {
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--cafe-medio), var(--dorado));
+    border-radius: 2px;
+    margin: 1.2rem auto;
+  }
+
+  /* Cuadrícula de módulos */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .card {
+    background: var(--blanco);
+    border: 1px solid var(--crema-suave);
+    border-radius: 14px;
+    padding: 1.8rem 1.6rem;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--cafe-medio), var(--dorado));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.22s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(62,39,35,0.12);
+    border-color: var(--cafe-claro);
+  }
+
+  .card:hover::after { transform: scaleX(1); }
+
+  .card-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--crema);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+  }
+
+  .card-number {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cafe-claro);
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--cafe-oscuro);
+    line-height: 1.3;
+  }
+
+  .card-desc {
+    font-size: 0.82rem;
+    color: var(--cafe-suave);
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .card-arrow {
+    font-size: 1rem;
+    color: var(--cafe-claro);
+    transition: color 0.18s, transform 0.18s;
+    align-self: flex-end;
+  }
+
+  .card:hover .card-arrow {
+    color: var(--cafe-medio);
+    transform: translateX(4px);
+  }
+
+  /* Pie */
+  footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--cafe-claro);
+    letter-spacing: 0.04em;
+  }
+
+  footer strong { color: var(--cafe-suave); }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo-mark">
+      <div class="logo-icon">SC</div>
+      <span class="logo-text">Sistema Contable</span>
+    </div>
+    <h1>Gestión Contable<br>Empresarial</h1>
+    <div class="divider"></div>
+    <p class="subtitle">Selecciona un módulo para comenzar</p>
+  </header>
+
+  <div class="grid">
+    <a class="card" href="LibroDiarioMayor.html">
+      <div class="card-icon">DM</div>
+      <span class="card-number">Módulo 01</span>
+      <div class="card-title">Libro Diario<br>y Mayor</div>
+      <p class="card-desc">Registro de asientos contables, generación automática del Libro Mayor y saldo por cuenta.</p>
+      <span class="card-arrow">&#8594;</span>
+    </a>
+
+    <a class="card" href="Inventario.html">
+      <div class="card-icon">INV</div>
+      <span class="card-number">Módulo 02</span>
+      <div class="card-title">Control de<br>Inventario</div>
+      <p class="card-desc">Gestión de productos, cantidades, precios y totales con cálculo automático del inventario general.</p>
+      <span class="card-arrow">&#8594;</span>
+    </a>
+
+    <a class="card" href="Planilla.html">
+      <div class="card-icon">PL</div>
+      <span class="card-number">Módulo 03</span>
+      <div class="card-title">Planilla de<br>Empleados</div>
+      <p class="card-desc">Cálculo de devengado, descuento IGSS (4.83%) y líquido a pagar por empleado.</p>
+      <span class="card-arrow">&#8594;</span>
+    </a>
+
+    <a class="card" href="BalanceGeneral.html">
+      <div class="card-icon">BG</div>
+      <span class="card-number">Módulo 04</span>
+      <div class="card-title">Balance<br>General</div>
+      <p class="card-desc">Registro de activos, pasivos y capital con verificación automática del equilibrio contable.</p>
+      <span class="card-arrow">&#8594;</span>
+    </a>
+  </div>
+
+  <footer>
+    <strong>Sistema Contable</strong> — Todos los datos se almacenan localmente en su navegador
+  </footer>
+</div>
+</body>
+</html>

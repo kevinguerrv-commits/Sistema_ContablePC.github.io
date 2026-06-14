@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Libro Diario y Mayor</title>
+<style> *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cafe-oscuro: #3e2723; --cafe-medio: #6d4c41; --cafe-suave: #8d6e63;
+    --cafe-claro: #bcaaa4; --crema: #f5f1eb; --crema-suave: #ede7df;
+    --dorado: #c8a96e; --texto: #2c1a14; --blanco: #ffffff;
+    --verde: #4caf50; --rojo: #e53935;
+  }
+  body { font-family: 'Segoe UI', sans-serif; background: var(--crema); color: var(--texto); min-height: 100vh; }
+
+  /* NAV */
+  nav {
+    background: var(--cafe-oscuro);
+    padding: 0.8rem 1.5rem;
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  }
+  nav a {
+    color: var(--cafe-claro); text-decoration: none; font-size: 0.82rem;
+    font-weight: 500; letter-spacing: 0.06em; padding: 0.3rem 0.8rem;
+    border-radius: 6px; transition: background 0.15s, color 0.15s;
+  }
+  nav a:hover { background: var(--cafe-medio); color: var(--blanco); }
+  nav a.active { background: var(--cafe-medio); color: var(--blanco); }
+  nav .brand { color: var(--dorado); font-weight: 700; font-size: 0.88rem; letter-spacing: 0.1em; margin-right: auto; }
+
+  /* LAYOUT */
+  main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+  h1 { font-size: 1.8rem; color: var(--cafe-oscuro); font-weight: 700; margin-bottom: 0.3rem; }
+  .page-sub { font-size: 0.85rem; color: var(--cafe-suave); margin-bottom: 2rem; }
+  .divider { height: 2px; background: linear-gradient(90deg, var(--cafe-medio), transparent); margin-bottom: 2rem; border: none; }
+
+  /* SECCIONES */
+  .section { background: var(--blanco); border-radius: 12px; border: 1px solid var(--crema-suave); padding: 1.5rem; margin-bottom: 2rem; }
+  .section-title {
+    font-size: 1rem; font-weight: 700; color: var(--cafe-oscuro);
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding-bottom: 0.8rem; border-bottom: 1px solid var(--crema-suave); margin-bottom: 1.2rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+
+  /* TABLA */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  thead th {
+    background: var(--cafe-oscuro); color: var(--crema);
+    padding: 0.7rem 0.9rem; text-align: left; font-weight: 600;
+    font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  thead th:first-child { border-radius: 6px 0 0 0; }
+  thead th:last-child { border-radius: 0 6px 0 0; }
+  tbody tr { border-bottom: 1px solid var(--crema-suave); transition: background 0.1s; }
+  tbody tr:hover { background: var(--crema); }
+  tbody td { padding: 0.55rem 0.9rem; }
+
+  /* INPUTS EN TABLA */
+  input[type="text"], input[type="date"], input[type="number"] {
+    width: 100%; border: 1px solid var(--crema-suave); border-radius: 6px;
+    padding: 0.4rem 0.6rem; font-size: 0.85rem; font-family: inherit;
+    background: var(--crema); color: var(--texto);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  input:focus { outline: none; border-color: var(--cafe-medio); box-shadow: 0 0 0 2px rgba(109,76,65,0.12); }
+
+  /* BOTONES */
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.5rem 1.1rem; border-radius: 8px; font-size: 0.83rem;
+    font-weight: 600; cursor: pointer; border: none; transition: all 0.15s;
+    letter-spacing: 0.04em; font-family: inherit;
+  }
+  .btn-primary { background: var(--cafe-medio); color: var(--blanco); }
+  .btn-primary:hover { background: var(--cafe-oscuro); }
+  .btn-danger { background: transparent; color: var(--rojo); border: 1px solid var(--rojo); padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+  .btn-danger:hover { background: var(--rojo); color: var(--blanco); }
+  .btn-gold { background: var(--dorado); color: var(--cafe-oscuro); }
+  .btn-gold:hover { background: #b8954f; }
+  .btn-outline { background: transparent; color: var(--cafe-medio); border: 1px solid var(--cafe-medio); }
+  .btn-outline:hover { background: var(--cafe-medio); color: var(--blanco); }
+
+  .toolbar { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem; }
+
+  /* MAYOR */
+  .mayor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem; }
+  .mayor-card {
+    border: 1px solid var(--crema-suave); border-radius: 10px; overflow: hidden;
+  }
+  .mayor-card-head {
+    background: var(--cafe-medio); color: var(--blanco);
+    padding: 0.6rem 1rem; font-weight: 700; font-size: 0.9rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .mayor-card-body table { font-size: 0.82rem; }
+  .mayor-card-body thead th { background: var(--crema-suave); color: var(--cafe-oscuro); font-size: 0.72rem; }
+  .mayor-card-footer {
+    background: var(--crema); border-top: 1px solid var(--crema-suave);
+    padding: 0.6rem 1rem; font-size: 0.82rem; font-weight: 700;
+    display: flex; justify-content: space-between;
+    color: var(--cafe-oscuro);
+  }
+  .saldo-deudor { color: var(--rojo); }
+  .saldo-acreedor { color: var(--verde); }
+
+  tfoot td { background: var(--crema-suave); font-weight: 700; padding: 0.6rem 0.9rem; }
+  .text-right { text-align: right; }
+  .text-center { text-align: center; }
+  .ok { color: var(--verde); font-weight: 700; }
+  .error-balance { color: var(--rojo); font-weight: 700; }
+</style>
+</head>
+<body> <nav> <span class="brand">SISTEMA CONTABLE</span> <a href="Menu.html">Menú</a> <a href="LibroDiarioMayor.html" class="active">Libro Diario/Mayor</a> <a href="Inventario.html">Inventario</a> <a href="Planilla.html">Planilla</a> <a href="BalanceGeneral.html">Balance</a>
+</nav> <main> <h1>Libro Diario y Mayor</h1> <p class="page-sub">Registra los asientos contables. El Libro Mayor se genera automáticamente.</p> <hr class="divider"> <!-- LIBRO DIARIO --> <div class="section"> <div class="section-title">Libro Diario</div> <div class="toolbar"> <button class="btn btn-primary" onclick="addRow()">+ Agregar fila</button> <button class="btn btn-gold" onclick="generateMayor()"> Generar Libro Mayor</button> <button class="btn btn-outline" onclick="clearAll()"> Limpiar todo</button> </div> <div class="table-wrap"> <table id="diarioTable"> <thead> <tr> <th style="width:110px">Fecha</th> <th>Cuenta</th> <th style="width:130px">Debe (Q)</th> <th style="width:130px">Haber (Q)</th> <th style="width:80px">Descripción</th> <th style="width:60px">Acción</th> </tr> </thead> <tbody id="diarioBody"></tbody> <tfoot> <tr> <td colspan="2" class="text-right">TOTALES</td> <td id="totalDebe">Q 0.00</td> <td id="totalHaber">Q 0.00</td> <td colspan="2" id="balanceStatus">—</td> </tr> </tfoot> </table> </div> </div> <!-- LIBRO MAYOR --> <div class="section" id="mayorSection" style="display:none"> <div class="section-title">Libro Mayor — Saldos por Cuenta</div> <div class="mayor-grid" id="mayorGrid"></div> </div>
+</main> <script>
+let rows = [];
+let rowId = 0;
+
+function addRow(fecha='', cuenta='', debe='', haber='', desc='') {
+  const id = ++rowId;
+  rows.push({ id, fecha, cuenta, debe, haber, desc });
+  renderDiario();
+}
+
+function removeRow(id) {
+  rows = rows.filter(r => r.id !== id);
+  renderDiario();
+}
+
+function renderDiario() {
+  const tbody = document.getElementById('diarioBody');
+  tbody.innerHTML = '';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="date" value="${r.fecha}" onchange="updateRow(${r.id},'fecha',this.value)"></td> <td><input type="text" value="${r.cuenta}" placeholder="Ej: Caja, Banco..." onchange="updateRow(${r.id},'cuenta',this.value)"></td> <td><input type="number" value="${r.debe}" min="0" step="0.01" placeholder="0.00" onchange="updateRow(${r.id},'debe',this.value)"></td> <td><input type="number" value="${r.haber}" min="0" step="0.01" placeholder="0.00" onchange="updateRow(${r.id},'haber',this.value)"></td> <td><input type="text" value="${r.desc}" placeholder="Concepto..." onchange="updateRow(${r.id},'desc',this.value)"></td> <td><button class="btn btn-danger" onclick="removeRow(${r.id})"></button></td> `;
+    tbody.appendChild(tr);
+  });
+  updateTotals();
+}
+
+function updateRow(id, field, value) {
+  const r = rows.find(r => r.id === id);
+  if (r) { r[field] = value; updateTotals(); }
+}
+
+function updateTotals() {
+  const debe  = rows.reduce((s, r) => s + (parseFloat(r.debe)  || 0), 0);
+  const haber = rows.reduce((s, r) => s + (parseFloat(r.haber) || 0), 0);
+  document.getElementById('totalDebe').textContent  = fmt(debe);
+  document.getElementById('totalHaber').textContent = fmt(haber);
+  const st = document.getElementById('balanceStatus');
+  if (rows.length === 0) { st.textContent = '—'; st.className = ''; return; }
+  if (Math.abs(debe - haber) < 0.01) {
+    st.textContent = ' Balanceado'; st.className = 'ok';
+  } else {
+    st.textContent = ' Desbalanceado'; st.className = 'error-balance';
+  }
+}
+
+function fmt(n) { return 'Q ' + (n || 0).toLocaleString('es-GT', { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+
+function generateMayor() {
+  const cuentas = {};
+  rows.forEach(r => {
+    const c = (r.cuenta || '').trim();
+    if (!c) return;
+    if (!cuentas[c]) cuentas[c] = [];
+    cuentas[c].push({ fecha: r.fecha, debe: parseFloat(r.debe)||0, haber: parseFloat(r.haber)||0, desc: r.desc });
+  });
+  if (Object.keys(cuentas).length === 0) { alert('No hay asientos con cuentas registradas.'); return; }
+
+  const grid = document.getElementById('mayorGrid');
+  grid.innerHTML = '';
+  Object.entries(cuentas).forEach(([cuenta, movs]) => {
+    const totDebe  = movs.reduce((s,m) => s+m.debe,  0);
+    const totHaber = movs.reduce((s,m) => s+m.haber, 0);
+    const saldo    = totDebe - totHaber;
+    const tipo     = saldo >= 0 ? 'Deudor' : 'Acreedor';
+    const cls      = saldo >= 0 ? 'saldo-deudor' : 'saldo-acreedor';
+
+    let filas = movs.map(m => `
+      <tr> <td>${m.fecha || '—'}</td> <td>${fmt(m.debe)}</td> <td>${fmt(m.haber)}</td> <td style="font-size:0.78rem;color:#888">${m.desc||''}</td> </tr> `).join('');
+
+    const card = document.createElement('div');
+    card.className = 'mayor-card';
+    card.innerHTML = `
+      <div class="mayor-card-head"> <span>${cuenta}</span> <span style="font-size:0.75rem;opacity:0.8">${movs.length} mov.</span> </div> <div class="mayor-card-body"> <div class="table-wrap"> <table> <thead><tr><th>Fecha</th><th>Debe</th><th>Haber</th><th>Concepto</th></tr></thead> <tbody>${filas}</tbody> </table> </div> </div> <div class="mayor-card-footer"> <span>Total Debe: ${fmt(totDebe)}</span> <span>Total Haber: ${fmt(totHaber)}</span> </div> <div class="mayor-card-footer" style="border-top:1px solid var(--cafe-claro)"> <span>Saldo ${tipo}:</span> <span class="${cls}">${fmt(Math.abs(saldo))}</span> </div> `;
+    grid.appendChild(card);
+  });
+  document.getElementById('mayorSection').style.display = 'block';
+  document.getElementById('mayorSection').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function clearAll() {
+  if (!confirm('¿Limpiar todos los asientos?')) return;
+  rows = []; rowId = 0;
+  renderDiario();
+  document.getElementById('mayorSection').style.display = 'none';
+}
+
+// Sin datos de ejemplo
+</script>
+</body>
+</html>

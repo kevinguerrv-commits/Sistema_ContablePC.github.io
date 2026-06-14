@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Balance General</title>
+<style> *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cafe-oscuro: #3e2723; --cafe-medio: #6d4c41; --cafe-suave: #8d6e63;
+    --cafe-claro: #bcaaa4; --crema: #f5f1eb; --crema-suave: #ede7df;
+    --dorado: #c8a96e; --texto: #2c1a14; --blanco: #ffffff;
+    --verde: #2e7d32; --verde-bg: #e8f5e9; --rojo: #c62828; --rojo-bg: #ffebee;
+  }
+  body { font-family: 'Segoe UI', sans-serif; background: var(--crema); color: var(--texto); min-height: 100vh; }
+
+  nav { background: var(--cafe-oscuro); padding: 0.8rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  nav a { color: var(--cafe-claro); text-decoration: none; font-size: 0.82rem; font-weight: 500; letter-spacing: 0.06em; padding: 0.3rem 0.8rem; border-radius: 6px; transition: background 0.15s, color 0.15s; }
+  nav a:hover { background: var(--cafe-medio); color: var(--blanco); }
+  nav a.active { background: var(--cafe-medio); color: var(--blanco); }
+  nav .brand { color: var(--dorado); font-weight: 700; font-size: 0.88rem; letter-spacing: 0.1em; margin-right: auto; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+  h1 { font-size: 1.8rem; color: var(--cafe-oscuro); font-weight: 700; margin-bottom: 0.3rem; }
+  .page-sub { font-size: 0.85rem; color: var(--cafe-suave); margin-bottom: 2rem; }
+  hr { height: 2px; background: linear-gradient(90deg, var(--cafe-medio), transparent); margin-bottom: 2rem; border: none; }
+
+  /* ESTADO */
+  .balance-status {
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    background: var(--blanco); border: 1px solid var(--crema-suave); border-radius: 12px;
+    padding: 1.2rem 1.5rem; margin-bottom: 2rem;
+  }
+  .status-indicator {
+    display: flex; align-items: center; gap: 0.6rem;
+    font-weight: 700; font-size: 1rem; padding: 0.5rem 1.1rem;
+    border-radius: 8px;
+  }
+  .status-ok { background: var(--verde-bg); color: var(--verde); }
+  .status-err { background: var(--rojo-bg); color: var(--rojo); }
+  .status-text { flex: 1; font-size: 0.85rem; color: var(--cafe-suave); }
+  .diff-amount { font-size: 0.85rem; font-weight: 600; color: var(--cafe-medio); }
+
+  /* GRID DOS COLUMNAS */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+  .section { background: var(--blanco); border-radius: 12px; border: 1px solid var(--crema-suave); padding: 1.4rem; }
+  .section-title {
+    font-size: 1rem; font-weight: 700; color: var(--blanco);
+    padding: 0.6rem 1rem; border-radius: 7px; margin-bottom: 1rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .title-activo { background: var(--cafe-oscuro); }
+  .title-pasivo { background: var(--cafe-suave); }
+  .title-capital { background: var(--dorado); color: var(--cafe-oscuro); }
+
+  .toolbar { display: flex; gap: 0.5rem; margin-bottom: 0.8rem; }
+  .btn { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.9rem; border-radius: 7px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; font-family: inherit; }
+  .btn-primary { background: var(--cafe-medio); color: var(--blanco); }
+  .btn-primary:hover { background: var(--cafe-oscuro); }
+  .btn-danger { background: transparent; color: var(--rojo); border: 1px solid var(--rojo); padding: 0.25rem 0.5rem; font-size: 0.75rem; }
+  .btn-danger:hover { background: var(--rojo); color: var(--blanco); }
+
+  /* MINI TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  thead th { background: var(--crema-suave); color: var(--cafe-oscuro); padding: 0.5rem 0.7rem; text-align: left; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.07em; text-transform: uppercase; }
+  tbody tr { border-bottom: 1px solid var(--crema-suave); }
+  tbody tr:hover { background: var(--crema); }
+  tbody td { padding: 0.45rem 0.7rem; }
+  tfoot td { background: var(--crema-suave); font-weight: 700; padding: 0.55rem 0.7rem; }
+
+  input[type="text"], input[type="number"] { width: 100%; border: 1px solid var(--crema-suave); border-radius: 5px; padding: 0.35rem 0.5rem; font-size: 0.83rem; font-family: inherit; background: var(--crema); color: var(--texto); }
+  input:focus { outline: none; border-color: var(--cafe-medio); }
+
+  .text-right { text-align: right; }
+  .amount-cell { font-weight: 600; text-align: right; color: var(--cafe-medio); }
+
+  /* RESUMEN FINAL */
+  .final-table-wrap { background: var(--blanco); border-radius: 12px; border: 1px solid var(--crema-suave); padding: 1.5rem; }
+  .final-title { font-size: 1rem; font-weight: 700; color: var(--cafe-oscuro); letter-spacing: 0.06em; text-transform: uppercase; padding-bottom: 0.8rem; border-bottom: 1px solid var(--crema-suave); margin-bottom: 1.2rem; text-align: center; }
+  .company-name { font-size: 1.3rem; font-weight: 700; color: var(--cafe-oscuro); text-align: center; margin-bottom: 0.2rem; }
+  .balance-date { font-size: 0.82rem; color: var(--cafe-suave); text-align: center; margin-bottom: 1.5rem; }
+
+  .final-two { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  @media (max-width: 700px) { .final-two { grid-template-columns: 1fr; } }
+  .final-col h3 { font-size: 0.88rem; font-weight: 700; color: var(--blanco); padding: 0.4rem 0.8rem; border-radius: 5px; margin-bottom: 0.6rem; }
+  .h3-activo { background: var(--cafe-oscuro); }
+  .h3-pasivo { background: var(--cafe-suave); }
+  .h3-capital { background: var(--dorado); color: var(--cafe-oscuro); }
+  .final-row { display: flex; justify-content: space-between; padding: 0.35rem 0.5rem; font-size: 0.85rem; border-bottom: 1px dashed var(--crema-suave); }
+  .final-row.total { font-weight: 700; border-top: 2px solid var(--cafe-claro); border-bottom: none; padding-top: 0.6rem; font-size: 0.9rem; }
+  .ec-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding: 1rem 1.2rem; border-radius: 8px; font-weight: 700; font-size: 0.95rem; }
+  .ec-ok { background: var(--verde-bg); color: var(--verde); }
+  .ec-err { background: var(--rojo-bg); color: var(--rojo); }
+</style>
+</head>
+<body>
+<nav> <span class="brand">SISTEMA CONTABLE</span> <a href="Menu.html">Menú</a> <a href="LibroDiarioMayor.html">Libro Diario/Mayor</a> <a href="Inventario.html">Inventario</a> <a href="Planilla.html">Planilla</a> <a href="BalanceGeneral.html" class="active">Balance</a>
+</nav> <main> <h1>Balance General</h1> <p class="page-sub">Registro de Activos, Pasivos y Capital. El equilibrio contable se verifica automáticamente.</p> <hr> <!-- ESTADO EQUILIBRIO --> <div class="balance-status" id="balanceStatus"> <div class="status-indicator status-ok" id="statusBadge"> Balanceado</div> <span class="status-text" id="statusText">Activos = Pasivos + Capital</span> <span class="diff-amount" id="diffAmount"></span> </div> <!-- ENTRADA DE DATOS --> <div class="two-col"> <!-- ACTIVOS --> <div class="section"> <div class="section-title title-activo"> <span> Activos</span> <span id="totalActivoHead">Q 0.00</span> </div> <div class="toolbar"> <button class="btn btn-primary" onclick="addItem('activo')">+ Agregar</button> </div> <table><thead><tr><th>Cuenta</th><th>Monto (Q)</th><th></th></tr></thead> <tbody id="activoBody"></tbody> <tfoot><tr><td>TOTAL ACTIVOS</td><td class="text-right" id="totalActivo">Q 0.00</td><td></td></tr></tfoot> </table> </div> <!-- PASIVOS Y CAPITAL --> <div> <div class="section" style="margin-bottom:1.5rem"> <div class="section-title title-pasivo"> <span> Pasivos</span> <span id="totalPasivoHead">Q 0.00</span> </div> <div class="toolbar"> <button class="btn btn-primary" onclick="addItem('pasivo')">+ Agregar</button> </div> <table><thead><tr><th>Cuenta</th><th>Monto (Q)</th><th></th></tr></thead> <tbody id="pasivoBody"></tbody> <tfoot><tr><td>TOTAL PASIVOS</td><td class="text-right" id="totalPasivo">Q 0.00</td><td></td></tr></tfoot> </table> </div> <div class="section"> <div class="section-title title-capital"> <span> Capital</span> <span id="totalCapitalHead">Q 0.00</span> </div> <div class="toolbar"> <button class="btn btn-primary" onclick="addItem('capital')">+ Agregar</button> </div> <table><thead><tr><th>Cuenta</th><th>Monto (Q)</th><th></th></tr></thead> <tbody id="capitalBody"></tbody> <tfoot><tr><td>TOTAL CAPITAL</td><td class="text-right" id="totalCapital">Q 0.00</td><td></td></tr></tfoot> </table> </div> </div> </div> <!-- REPORTE FORMAL --> <div class="final-table-wrap"> <div class="final-title"> Balance General — Reporte Formal</div> <div class="company-name" id="companyInput" contenteditable="true" title="Haz clic para editar el nombre">Mi Empresa, S.A.</div> <div class="balance-date" id="balanceDate"></div> <div class="final-two"> <div class="final-col"> <h3 class="h3-activo">ACTIVOS</h3> <div id="reportActivos"></div> <div class="final-row total"><span>TOTAL ACTIVOS</span><span id="reportTotActivo">Q 0.00</span></div> </div> <div class="final-col"> <h3 class="h3-pasivo">PASIVOS</h3> <div id="reportPasivos"></div> <div class="final-row total" style="margin-bottom:1rem"><span>TOTAL PASIVOS</span><span id="reportTotPasivo">Q 0.00</span></div> <h3 class="h3-capital">CAPITAL</h3> <div id="reportCapital"></div> <div class="final-row total"><span>TOTAL CAPITAL</span><span id="reportTotCapital">Q 0.00</span></div> </div> </div> <div class="ec-row ec-ok" id="ecuacionRow"> <span>Ecuación Contable: Activos = Pasivos + Capital</span> <span id="ecuacionResult"> Verificado</span> </div> </div>
+</main> <script>
+const data = { activo: [], pasivo: [], capital: [] };
+let ids = { activo:0, pasivo:0, capital:0 };
+
+function addItem(type, cuenta='', monto='') {
+  const id = ++ids[type];
+  data[type].push({ id, cuenta, monto });
+  renderAll();
+}
+
+function removeItem(type, id) {
+  data[type] = data[type].filter(i => i.id !== id);
+  renderAll();
+}
+
+function updateItem(type, id, field, value) {
+  const it = data[type].find(i => i.id === id);
+  if (it) { it[field] = value; renderAll(); }
+}
+
+function fmt(n) { return 'Q ' + (n||0).toLocaleString('es-GT',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function sum(arr) { return arr.reduce((s,i)=>s+(parseFloat(i.monto)||0),0); }
+
+function renderSection(type) {
+  const tbody = document.getElementById(type + 'Body');
+  tbody.innerHTML = '';
+  data[type].forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${r.cuenta}" placeholder="Nombre de cuenta..." onchange="updateItem('${type}',${r.id},'cuenta',this.value)"></td> <td><input type="number" value="${r.monto}" min="0" step="0.01" placeholder="0.00" onchange="updateItem('${type}',${r.id},'monto',this.value)"></td> <td><button class="btn btn-danger" onclick="removeItem('${type}',${r.id})"></button></td> `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderAll() {
+  ['activo','pasivo','capital'].forEach(t => renderSection(t));
+
+  const totA = sum(data.activo);
+  const totP = sum(data.pasivo);
+  const totC = sum(data.capital);
+  const totPC = totP + totC;
+  const diff = Math.abs(totA - totPC);
+
+  // Totales en tabla
+  document.getElementById('totalActivo').textContent  = fmt(totA);
+  document.getElementById('totalPasivo').textContent  = fmt(totP);
+  document.getElementById('totalCapital').textContent = fmt(totC);
+  document.getElementById('totalActivoHead').textContent  = fmt(totA);
+  document.getElementById('totalPasivoHead').textContent  = fmt(totP);
+  document.getElementById('totalCapitalHead').textContent = fmt(totC);
+
+  // Estado equilibrio
+  const badge = document.getElementById('statusBadge');
+  const txt   = document.getElementById('statusText');
+  const diffEl = document.getElementById('diffAmount');
+  if (diff < 0.01) {
+    badge.className = 'status-indicator status-ok'; badge.textContent = ' Balanceado';
+    txt.textContent = 'Activos = Pasivos + Capital';
+    diffEl.textContent = '';
+  } else {
+    badge.className = 'status-indicator status-err'; badge.textContent = ' Desbalanceado';
+    txt.textContent = 'Existe una diferencia contable:';
+    diffEl.textContent = 'Diferencia: ' + fmt(diff);
+  }
+
+  // Reporte formal
+  function buildReport(arr) {
+    if (!arr.length) return '<div class="final-row" style="color:#999;font-size:0.8rem">— Sin registros —</div>';
+    return arr.map(i=>`<div class="final-row"><span>${i.cuenta||'—'}</span><span>${fmt(parseFloat(i.monto)||0)}</span></div>`).join('');
+  }
+  document.getElementById('reportActivos').innerHTML  = buildReport(data.activo);
+  document.getElementById('reportPasivos').innerHTML  = buildReport(data.pasivo);
+  document.getElementById('reportCapital').innerHTML  = buildReport(data.capital);
+  document.getElementById('reportTotActivo').textContent  = fmt(totA);
+  document.getElementById('reportTotPasivo').textContent  = fmt(totP);
+  document.getElementById('reportTotCapital').textContent = fmt(totC);
+
+  const ecRow = document.getElementById('ecuacionRow');
+  const ecRes = document.getElementById('ecuacionResult');
+  if (diff < 0.01) {
+    ecRow.className = 'ec-row ec-ok';
+    ecRes.textContent = `  ${fmt(totA)} = ${fmt(totP)} + ${fmt(totC)}`;
+  } else {
+    ecRow.className = 'ec-row ec-err';
+    ecRes.textContent = `  ${fmt(totA)} ≠ ${fmt(totPC)}  (Δ ${fmt(diff)})`;
+  }
+}
+
+// Fecha
+(function(){
+  const d = new Date();
+  document.getElementById('balanceDate').textContent =
+    'Al ' + d.toLocaleDateString('es-GT',{day:'2-digit',month:'long',year:'numeric'});
+})();
+
+// Sin datos de ejemplo
+</script>
+</body>
+</html>

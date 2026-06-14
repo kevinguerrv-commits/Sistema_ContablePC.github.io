@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Libro de Inventarios</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cafe-oscuro: #3e2723; --cafe-medio: #6d4c41; --cafe-suave: #8d6e63;
+    --cafe-claro: #bcaaa4; --crema: #f5f1eb; --crema-suave: #ede7df;
+    --dorado: #c8a96e; --texto: #2c1a14; --blanco: #ffffff;
+    --rojo: #e53935;
+  }
+  body { font-family: 'Segoe UI', sans-serif; background: var(--crema); color: var(--texto); min-height: 100vh; }
+
+  nav { background: var(--cafe-oscuro); padding: 0.8rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  nav a { color: var(--cafe-claro); text-decoration: none; font-size: 0.82rem; font-weight: 500; letter-spacing: 0.06em; padding: 0.3rem 0.8rem; border-radius: 6px; transition: background 0.15s, color 0.15s; }
+  nav a:hover, nav a.active { background: var(--cafe-medio); color: var(--blanco); }
+  nav .brand { color: var(--dorado); font-weight: 700; font-size: 0.88rem; letter-spacing: 0.1em; margin-right: auto; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  /* ENCABEZADO DEL LIBRO */
+  .libro-header {
+    background: var(--blanco);
+    border: 2px solid #aaa;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 0;
+    text-align: center;
+  }
+  .libro-header h2 { font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--cafe-oscuro); margin-bottom: 0.2rem; }
+  .libro-header .sub { font-size: 0.85rem; color: #444; margin-bottom: 0.15rem; }
+  .libro-header .cifras { font-size: 0.85rem; color: var(--rojo); font-style: italic; }
+
+  /* TOOLBAR */
+  .toolbar { display: flex; gap: 0.6rem; flex-wrap: wrap; margin: 1rem 0; }
+  .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 1rem; border-radius: 7px; font-size: 0.82rem; font-weight: 600; cursor: pointer; border: none; font-family: inherit; transition: all 0.15s; }
+  .btn-primary { background: var(--cafe-medio); color: var(--blanco); }
+  .btn-primary:hover { background: var(--cafe-oscuro); }
+  .btn-secondary { background: var(--crema-suave); color: var(--cafe-oscuro); border: 1px solid var(--cafe-claro); }
+  .btn-secondary:hover { background: var(--cafe-claro); }
+  .btn-danger { background: transparent; color: var(--rojo); border: 1px solid var(--rojo); }
+  .btn-danger:hover { background: var(--rojo); color: var(--blanco); }
+  .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 5px; }
+
+  /* TABLA LIBRO */
+  .tabla-wrap { overflow-x: auto; }
+  table.libro {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.83rem;
+    background: var(--blanco);
+    border: 2px solid #aaa;
+    border-top: none;
+  }
+  table.libro th {
+    background: #f0ebe3;
+    border: 1px solid #bbb;
+    padding: 0.4rem 0.6rem;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    color: var(--cafe-oscuro);
+    white-space: nowrap;
+  }
+  table.libro td {
+    border: 1px solid #ccc;
+    padding: 0.3rem 0.5rem;
+    vertical-align: middle;
+  }
+  table.libro td input {
+    width: 100%; border: none; background: transparent;
+    font-size: 0.83rem; font-family: inherit; color: var(--texto);
+    padding: 0;
+  }
+  table.libro td input:focus { outline: 1px solid var(--cafe-medio); border-radius: 2px; background: #fffef8; }
+  table.libro td.num { text-align: right; }
+  table.libro td.num input { text-align: right; }
+  table.libro td.center { text-align: center; }
+
+  /* FILAS ESPECIALES */
+  tr.fila-grupo td { background: #f7f3ed; font-weight: 700; color: var(--cafe-oscuro); border-top: 2px solid #bbb; }
+  tr.fila-subgrupo td { background: #faf8f4; font-weight: 600; font-style: italic; }
+  tr.fila-subtotal td { background: #f0ebe3; font-weight: 700; border-top: 1px solid #bbb; border-bottom: 2px solid #bbb; }
+  tr.fila-total td { background: var(--cafe-oscuro); color: var(--blanco); font-weight: 700; font-size: 0.88rem; }
+  tr.fila-activo td { background: #e8f4f8; }
+  tr.fila-pasivo td { background: #fdf3f3; }
+  tr.fila-patrimonio td { background: #f0f8ee; }
+  tr.fila-resumen td { background: #fafafa; }
+
+  /* SELECTOR DE TIPO DE FILA */
+  select.tipo-fila { width: 100%; border: none; background: transparent; font-size: 0.78rem; font-family: inherit; color: #777; cursor: pointer; }
+  select.tipo-fila:focus { outline: 1px solid var(--cafe-medio); }
+
+  /* PANEL LATERAL */
+  .side-panel { display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap; margin-bottom: 1rem; }
+  .meta-box { background: var(--blanco); border: 1px solid var(--crema-suave); border-radius: 8px; padding: 0.9rem 1.2rem; flex: 1; min-width: 200px; }
+  .meta-box label { display: block; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--cafe-claro); margin-bottom: 0.3rem; }
+  .meta-box input { width: 100%; border: 1px solid var(--crema-suave); border-radius: 5px; padding: 0.35rem 0.6rem; font-size: 0.85rem; font-family: inherit; background: var(--crema); color: var(--texto); }
+  .meta-box input:focus { outline: none; border-color: var(--cafe-medio); }
+
+  .totales-panel { background: var(--blanco); border: 1px solid var(--crema-suave); border-radius: 8px; padding: 0.9rem 1.2rem; }
+  .tot-row { display: flex; justify-content: space-between; gap: 2rem; padding: 0.25rem 0; font-size: 0.85rem; border-bottom: 1px dashed var(--crema-suave); }
+  .tot-row:last-child { border-bottom: none; font-weight: 700; font-size: 0.95rem; color: var(--cafe-oscuro); padding-top: 0.4rem; }
+  .tot-label { color: var(--cafe-suave); }
+  .tot-val { font-weight: 600; }
+
+  .help-text { font-size: 0.75rem; color: var(--cafe-claro); margin-bottom: 0.5rem; }
+
+  @media print {
+    nav, .toolbar, .side-panel, .btn, select.tipo-fila, td:last-child { display: none !important; }
+    body { background: white; }
+    main { padding: 0; max-width: 100%; }
+    table.libro { border: 2px solid #000; font-size: 0.8rem; }
+    table.libro th, table.libro td { border: 1px solid #000; }
+  }
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">SISTEMA CONTABLE</span>
+  <a href="Menu.html">Menu</a>
+  <a href="LibroDiarioMayor.html">Libro Diario/Mayor</a>
+  <a href="Inventario.html" class="active">Inventario</a>
+  <a href="Planilla.html">Planilla</a>
+  <a href="BalanceGeneral.html">Balance</a>
+</nav>
+
+<main>
+  <!-- ENCABEZADO FORMAL -->
+  <div class="libro-header">
+    <h2>Libro de Inventarios</h2>
+    <div class="sub" id="subEncabezado">Inventario No. <span id="spanNumInv" onclick="editMeta()" style="cursor:pointer;text-decoration:underline dotted">1</span> del "<span id="spanEmpresa" onclick="editMeta()" style="cursor:pointer;text-decoration:underline dotted">Nombre de la Empresa</span>", practicado el <span id="spanFecha" onclick="editMeta()" style="cursor:pointer;text-decoration:underline dotted">____ de ________ de ____</span></div>
+    <div class="cifras">(Cifras en quetzales)</div>
+  </div>
+
+  <!-- DATOS DEL LIBRO -->
+  <div class="side-panel" style="margin-top:1rem">
+    <div class="meta-box">
+      <label>Numero de inventario</label>
+      <input type="text" id="metaNumInv" value="1" oninput="updateHeader()">
+    </div>
+    <div class="meta-box">
+      <label>Nombre de la empresa</label>
+      <input type="text" id="metaEmpresa" value="" placeholder="Ej: Almacen La Fridera" oninput="updateHeader()">
+    </div>
+    <div class="meta-box">
+      <label>Fecha del inventario</label>
+      <input type="date" id="metaFecha" oninput="updateHeader()">
+    </div>
+    <div class="totales-panel">
+      <div class="tot-row"><span class="tot-label">Total Activo</span><span class="tot-val" id="resActivo">Q 0.00</span></div>
+      <div class="tot-row"><span class="tot-label">Total Pasivo</span><span class="tot-val" id="resPasivo">Q 0.00</span></div>
+      <div class="tot-row"><span class="tot-label">Patrimonio Neto</span><span class="tot-val" id="resPatrimonio">Q 0.00</span></div>
+    </div>
+  </div>
+
+  <!-- ACCIONES -->
+  <div class="toolbar">
+    <button class="btn btn-primary" onclick="addFila('dato')">+ Agregar fila</button>
+    <button class="btn btn-secondary" onclick="addFila('grupo')">+ Grupo/Categoria</button>
+    <button class="btn btn-secondary" onclick="addFila('subgrupo')">+ Subcategoria</button>
+    <button class="btn btn-secondary" onclick="addFila('subtotal')">+ Subtotal</button>
+    <button class="btn btn-danger" onclick="clearAll()">Limpiar todo</button>
+    <button class="btn btn-secondary" onclick="window.print()">Imprimir</button>
+  </div>
+  <p class="help-text">Haz clic en cualquier celda para editar. Los montos se calculan automaticamente.</p>
+
+  <div class="tabla-wrap">
+    <table class="libro" id="tablaInventario">
+      <thead>
+        <tr>
+          <th style="width:55px">Cant.</th>
+          <th>Descripcion</th>
+          <th style="width:90px">P. Unitario</th>
+          <th style="width:100px">Parcial (Q)</th>
+          <th style="width:100px">Total (Q)</th>
+          <th style="width:40px" class="no-print"></th>
+        </tr>
+      </thead>
+      <tbody id="tablaBody">
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+let filas = [];
+let fid = 0;
+
+// Tipos: 'activo-head','pasivo-head','patrimonio-head','grupo','subgrupo','dato','subtotal','total-activo','total-pasivo','suma-iguales'
+function addFila(tipo, cant='', desc='', punit='', parcial='', total='') {
+  filas.push({ id: ++fid, tipo, cant, desc, punit, parcial, total });
+  render();
+}
+
+function removeFila(id) {
+  filas = filas.filter(f => f.id !== id);
+  render();
+}
+
+function updateFila(id, field, value) {
+  const f = filas.find(f => f.id === id);
+  if (!f) return;
+  f[field] = value;
+  // Auto-calcular parcial si hay cantidad y precio
+  if (field === 'cant' || field === 'punit') {
+    const c = parseFloat(f.cant) || 0;
+    const p = parseFloat(f.punit) || 0;
+    if (c > 0 && p > 0) f.parcial = (c * p).toFixed(2);
+  }
+  render();
+}
+
+function fmt(n) {
+  if (n === '' || n === null || n === undefined) return '';
+  const num = parseFloat(n);
+  if (isNaN(num)) return '';
+  return num.toLocaleString('es-GT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function render() {
+  const tbody = document.getElementById('tablaBody');
+  tbody.innerHTML = '';
+
+  filas.forEach(f => {
+    const tr = document.createElement('tr');
+
+    if (f.tipo === 'activo-head') {
+      tr.className = 'fila-activo';
+      tr.innerHTML = `
+        <td colspan="5" style="text-align:center;font-weight:700;font-size:0.95rem;color:#1a237e;padding:0.5rem">
+          <input style="text-align:center;font-weight:700;font-size:0.95rem;color:#1a237e;width:100%;border:none;background:transparent" value="${f.desc}" oninput="updateFila(${f.id},'desc',this.value)">
+        </td>
+        <td class="no-print"><button class="btn btn-danger btn-sm" onclick="removeFila(${f.id})">x</button></td>`;
+
+    } else if (f.tipo === 'pasivo-head') {
+      tr.className = 'fila-pasivo';
+      tr.innerHTML = `
+        <td colspan="5" style="text-align:center;font-weight:700;font-size:0.95rem;color:#b71c1c;padding:0.5rem">
+          <input style="text-align:center;font-weight:700;font-size:0.95rem;color:#b71c1c;width:100%;border:none;background:transparent" value="${f.desc}" oninput="updateFila(${f.id},'desc',this.value)">
+        </td>
+        <td class="no-print"><button class="btn btn-danger btn-sm" onclick="removeFila(${f.id})">x</button></td>`;
+
+    } else if (f.tipo === 'patrimonio-head') {
+      tr.className = 'fila-patrimonio';
+      tr.innerHTML = `
+        <td colspan="5" style="text-align:center;font-weight:700;font-size:0.95rem;color:#1b5e20;padding:0.5rem">
+          <input style="text-align:center;font-weight:700;font-size:0.95rem;color:#1b5e20;width:100%;border:none;background:transparent" value="${f.desc}" oninput="updateFila(${f.id},'desc',this.value)">
+        </td>
+        <td class="no-print"><button class="btn btn-danger btn-sm" onclick="removeFila(${f.id})">x</button></td>`;
+
+    } else if (f.tipo === 'grupo') {
+      tr.className = 'fila-grupo';
+      tr.innerHTML = `
+        <td></td>
+        <td colspan="4"><input value="${f.desc}" placeholder="Nombre del grupo (ej: Corriente, Mercaderias...)" oninput="updateFila(${f.id},'desc',this.value)" style="font-weight:700"></td>
+        <td class="no-print"><button class="btn btn-danger btn-sm" onclick="removeFila(${f.id})">x</button></td>`;
+
+    } else if (f.tipo === 'subgrupo') {
+      tr.className = 'fila-subgrupo';
+      tr.innerHTML = `
+        <td></td>
+        <td colspan="4" style="padding-left:1.5rem"><input value="${f.desc}" placeholder="Subcategoria (ej: Caja, Bancos, Ollas...)" oninput="updateFila(${f.id},'desc',this.value)" style="font-style:italic"></td>
+        <td class="no-print"><button class="btn btn-danger btn-sm" onclick="removeFila(${f.id})">x</button></td>`;
+
+    } else if (f.tipo === 'subtotal') {
+      tr.className = 'fila-subtotal';
+      tr.innerHTML = `
+        <td></td>
+        <td><input value="${f.desc}" placeholder="Ej: Suma del Activo, Total Mercaderias..." oninput="updateFila(${f.id},'desc',this.value)" style="font-weight:700"></td>
+        <td class="num"></td>
+        <td class="num"></td>
+        <td class="num"><input value="${f.total}" placeholder="0.00" oninput="updateFila(${f.id},'total',this.value)" style="font-weight:700;text-align:right"></td>
+        <td class="no-print"><button class="btn btn-danger btn-sm" onclick="removeFila(${f.id})">x</button></td>`;
+
+    } else if (f.tipo === 'suma-iguales') {
+      tr.className = 'fila-total';
+      tr.innerHTML = `
+        <td></td>
+        <td colspan="3"><input value="${f.desc || 'Sumas Iguales'}" oninput="updateFila(${f.id},'desc',this.value)" style="font-weight:700;color:white;background:transparent;border:none;width:100%"></td>
+        <td class="num"><input value="${f.total}" oninput="updateFila(${f.id},'total',this.value)" style="font-weight:700;color:white;background:transparent;border:none;width:100%;text-align:right"></td>
+        <td class="no-print"><button class="btn btn-danger btn-sm" style="color:white;border-color:white" onclick="removeFila(${f.id})">x</button></td>`;
+
+    } else {
+      // fila dato normal
+      const parcialCalc = (() => {
+        const c = parseFloat(f.cant)||0;
+        const p = parseFloat(f.punit)||0;
+        return (c>0 && p>0) ? (c*p).toFixed(2) : f.parcial;
+      })();
+
+      tr.innerHTML = `
+        <td class="num center"><input type="text" value="${f.cant}" placeholder="" oninput="updateFila(${f.id},'cant',this.value)" style="text-align:right;width:50px"></td>
+        <td style="padding-left:2rem"><input type="text" value="${f.desc}" placeholder="Descripcion del articulo..." oninput="updateFila(${f.id},'desc',this.value)"></td>
+        <td class="num"><input type="text" value="${f.punit}" placeholder="0.00" oninput="updateFila(${f.id},'punit',this.value)" style="text-align:right"></td>
+        <td class="num"><input type="text" value="${parcialCalc}" placeholder="0.00" oninput="updateFila(${f.id},'parcial',this.value)" style="text-align:right"></td>
+        <td class="num"><input type="text" value="${f.total}" placeholder="" oninput="updateFila(${f.id},'total',this.value)" style="text-align:right"></td>
+        <td class="no-print"><button class="btn btn-danger btn-sm" onclick="removeFila(${f.id})">x</button></td>`;
+    }
+    tbody.appendChild(tr);
+  });
+
+  calcTotales();
+}
+
+function calcTotales() {
+  // Sumar los campos "total" de filas subtotal y suma-iguales para estimado
+  let sumActivo = 0, sumPasivo = 0;
+  let seccion = '';
+  filas.forEach(f => {
+    if (f.tipo === 'activo-head') seccion = 'activo';
+    if (f.tipo === 'pasivo-head') seccion = 'pasivo';
+    if (f.tipo === 'patrimonio-head') seccion = 'patrimonio';
+    if ((f.tipo === 'subtotal' || f.tipo === 'suma-iguales') && f.total) {
+      const v = parseFloat(f.total)||0;
+      if (seccion === 'activo') sumActivo += v;
+      if (seccion === 'pasivo') sumPasivo += v;
+    }
+  });
+  // Si no hay heads, sumar todos los subtotales en activo
+  if (sumActivo === 0 && sumPasivo === 0) {
+    filas.filter(f=>f.tipo==='subtotal'||f.tipo==='suma-iguales').forEach(f=>{
+      sumActivo += parseFloat(f.total)||0;
+    });
+  }
+  const patrimonio = sumActivo - sumPasivo;
+  document.getElementById('resActivo').textContent = 'Q ' + fmt(sumActivo);
+  document.getElementById('resPasivo').textContent = 'Q ' + fmt(sumPasivo);
+  document.getElementById('resPatrimonio').textContent = 'Q ' + fmt(patrimonio);
+}
+
+function clearAll() {
+  if (!confirm('Limpiar todo el inventario?')) return;
+  filas = []; fid = 0; render();
+}
+
+function updateHeader() {
+  const num    = document.getElementById('metaNumInv').value || '_';
+  const emp    = document.getElementById('metaEmpresa').value || 'Nombre de la Empresa';
+  const fechaV = document.getElementById('metaFecha').value;
+  let fechaStr = '_____ de __________ de ____';
+  if (fechaV) {
+    const d = new Date(fechaV + 'T12:00:00');
+    fechaStr = d.toLocaleDateString('es-GT', { day:'numeric', month:'long', year:'numeric' });
+  }
+  document.getElementById('spanNumInv').textContent  = num;
+  document.getElementById('spanEmpresa').textContent = emp;
+  document.getElementById('spanFecha').textContent   = fechaStr;
+}
+
+// Iniciar con tabla vacia — sin ejemplos
+render();
+</script>
+</body>
+</html>

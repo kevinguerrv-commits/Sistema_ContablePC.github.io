@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planilla de Sueldos</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --cafe-oscuro: #3e2723; --cafe-medio: #6d4c41; --cafe-suave: #8d6e63;
+    --cafe-claro: #bcaaa4; --crema: #f5f1eb; --crema-suave: #ede7df;
+    --dorado: #c8a96e; --texto: #2c1a14; --blanco: #ffffff;
+    --verde: #2e7d32; --rojo: #e53935;
+    --igss-rate: 0.0483;
+    --bonif: 250;
+  }
+  body { font-family: 'Segoe UI', sans-serif; background: var(--crema); color: var(--texto); min-height: 100vh; }
+
+  nav { background: var(--cafe-oscuro); padding: 0.8rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  nav a { color: var(--cafe-claro); text-decoration: none; font-size: 0.82rem; font-weight: 500; letter-spacing: 0.06em; padding: 0.3rem 0.8rem; border-radius: 6px; transition: background 0.15s, color 0.15s; }
+  nav a:hover, nav a.active { background: var(--cafe-medio); color: var(--blanco); }
+  nav .brand { color: var(--dorado); font-weight: 700; font-size: 0.88rem; letter-spacing: 0.1em; margin-right: auto; }
+
+  main { max-width: 1500px; margin: 0 auto; padding: 2rem 1.5rem; }
+  h1 { font-size: 1.8rem; color: var(--cafe-oscuro); font-weight: 700; margin-bottom: 0.3rem; }
+  .page-sub { font-size: 0.85rem; color: var(--cafe-suave); margin-bottom: 2rem; }
+  hr { height: 2px; background: linear-gradient(90deg, var(--cafe-medio), transparent); margin-bottom: 2rem; border: none; }
+
+  /* RESUMEN */
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .stat-card { background: var(--blanco); border: 1px solid var(--crema-suave); border-radius: 10px; padding: 1.1rem 1.3rem; }
+  .stat-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cafe-claro); margin-bottom: 0.4rem; }
+  .stat-value { font-size: 1.3rem; font-weight: 700; color: var(--cafe-oscuro); }
+  .stat-value.accent { color: var(--cafe-medio); }
+  .stat-value.green { color: var(--verde); }
+  .stat-value.red { color: var(--rojo); }
+
+  /* DATOS DE LA EMPRESA */
+  .meta-box { background: var(--blanco); border: 1px solid var(--crema-suave); border-radius: 8px; padding: 1rem 1.3rem; margin-bottom: 1.2rem; display: flex; gap: 1.2rem; flex-wrap: wrap; }
+  .meta-field { flex: 1; min-width: 180px; }
+  .meta-field label { display: block; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--cafe-claro); margin-bottom: 0.3rem; }
+  .meta-field input { width: 100%; border: 1px solid var(--crema-suave); border-radius: 5px; padding: 0.35rem 0.6rem; font-size: 0.85rem; font-family: inherit; background: var(--crema); color: var(--texto); }
+  .meta-field input:focus { outline: none; border-color: var(--cafe-medio); }
+
+  .section { background: var(--blanco); border-radius: 12px; border: 1px solid var(--crema-suave); padding: 1.5rem; }
+  .section-title { font-size: 1rem; font-weight: 700; color: var(--cafe-oscuro); letter-spacing: 0.06em; text-transform: uppercase; padding-bottom: 0.8rem; border-bottom: 1px solid var(--crema-suave); margin-bottom: 1.2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+
+  .toolbar { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1.1rem; border-radius: 8px; font-size: 0.83rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; font-family: inherit; }
+  .btn-primary { background: var(--cafe-medio); color: var(--blanco); }
+  .btn-primary:hover { background: var(--cafe-oscuro); }
+  .btn-danger { background: transparent; color: var(--rojo); border: 1px solid var(--rojo); padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+  .btn-danger:hover { background: var(--rojo); color: var(--blanco); }
+  .btn-outline { background: transparent; color: var(--cafe-medio); border: 1px solid var(--cafe-medio); }
+  .btn-outline:hover { background: var(--cafe-medio); color: var(--blanco); }
+
+  /* TABLA ESTILO PLANILLA OFICIAL */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%; border-collapse: collapse; font-size: 0.76rem; min-width: 1450px;
+    background: var(--blanco); border: 1px solid #999;
+  }
+  thead th {
+    background: #f0ebe3; color: var(--cafe-oscuro);
+    padding: 0.4rem 0.4rem; text-align: center; font-weight: 700;
+    font-size: 0.7rem; text-transform: uppercase; border: 1px solid #999;
+    white-space: nowrap; vertical-align: middle;
+  }
+  thead .group-row th { background: var(--cafe-medio); color: var(--blanco); font-size: 0.7rem; }
+  tbody tr { border-bottom: 1px solid #ccc; }
+  tbody tr:hover { background: var(--crema); }
+  tbody td { padding: 0.25rem 0.35rem; border: 1px solid #ccc; text-align: center; }
+
+  input[type="text"], input[type="number"] {
+    width: 100%; border: none; background: transparent;
+    font-size: 0.78rem; font-family: inherit; color: var(--texto);
+    padding: 0.15rem; text-align: center;
+  }
+  input[type="text"]:focus, input[type="number"]:focus { outline: 1px solid var(--cafe-medio); border-radius: 2px; background: #fffef8; }
+  td.label-col input { text-align: left; }
+
+  .calc-cell { background: #f7f3ed; font-weight: 700; color: var(--cafe-medio); }
+  .descuento-cell { background: #fdf3f3; }
+  .total-liquido-cell { background: #eef7ec; font-weight: 700; color: var(--verde); font-size: 0.82rem; }
+
+  tfoot td { background: var(--cafe-oscuro); color: var(--blanco); font-weight: 700; padding: 0.45rem 0.4rem; text-align: center; font-size: 0.76rem; }
+
+  .col-no { width: 35px; }
+  .col-bonif-info { font-size: 0.7rem; color: var(--cafe-suave); margin-top: 0.6rem; }
+
+  @media print {
+    nav, .toolbar, .meta-field input, .btn, td:last-child, th:last-child { }
+  }
+</style>
+</head>
+<body>
+<nav>
+  <span class="brand">SISTEMA CONTABLE</span>
+  <a href="Menu.html">Menu</a>
+  <a href="LibroDiarioMayor.html">Libro Diario/Mayor</a>
+  <a href="Inventario.html">Inventario</a>
+  <a href="Planilla.html" class="active">Planilla</a>
+  <a href="BalanceGeneral.html">Balance</a>
+</nav>
+
+<main>
+  <h1>Planilla de Sueldos</h1>
+  <p class="page-sub">Calculo automatico de devengado, descuentos (IGSS 4.83%) y total liquido por empleado.</p>
+  <hr>
+
+  <div class="meta-box">
+    <div class="meta-field">
+      <label>Empresa</label>
+      <input type="text" id="metaEmpresa" placeholder="Nombre de la empresa">
+    </div>
+    <div class="meta-field">
+      <label>Periodo / Quincena</label>
+      <input type="text" id="metaPeriodo" placeholder="Ej: 1ra. quincena de junio 2026">
+    </div>
+    <div class="meta-field">
+      <label>Bonificacion Incentivo (Q)</label>
+      <input type="number" id="metaBonif" value="250" min="0" step="0.01" oninput="renderTable()">
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="stat-card"><div class="stat-label">Empleados</div><div class="stat-value" id="statEmp">0</div></div>
+    <div class="stat-card"><div class="stat-label">Total Devengado</div><div class="stat-value accent" id="statDev">Q 0.00</div></div>
+    <div class="stat-card"><div class="stat-label">Total Descuentos</div><div class="stat-value red" id="statDesc">Q 0.00</div></div>
+    <div class="stat-card"><div class="stat-label">Total Liquido</div><div class="stat-value green" id="statLiq">Q 0.00</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">
+      <span>Detalle de Planilla</span>
+    </div>
+    <div class="toolbar">
+      <button class="btn btn-primary" onclick="addRow()">+ Agregar empleado</button>
+      <button class="btn btn-outline" onclick="clearAll()">Limpiar</button>
+      <button class="btn btn-outline" onclick="window.print()">Imprimir</button>
+    </div>
+    <div class="table-wrap">
+      <table id="planillaTable">
+        <thead>
+          <tr class="group-row">
+            <th rowspan="2" class="col-no">No.</th>
+            <th rowspan="2" style="width:170px">Nombres</th>
+            <th rowspan="2" style="width:110px">Cargo</th>
+            <th rowspan="2" style="width:90px">Sueldo Ordinario</th>
+            <th colspan="2">Horas Extras</th>
+            <th rowspan="2" style="width:80px">Comisiones</th>
+            <th rowspan="2" style="width:85px">Sub Total</th>
+            <th rowspan="2" style="width:80px">Bonific. Incent.</th>
+            <th rowspan="2" style="width:90px">Total Devengado</th>
+            <th colspan="5">Descuentos</th>
+            <th rowspan="2" style="width:90px">Total Descuento</th>
+            <th rowspan="2" style="width:95px">Total Liquido</th>
+            <th rowspan="2" style="width:35px"></th>
+          </tr>
+          <tr class="group-row">
+            <th style="width:60px">Numero</th>
+            <th style="width:70px">Valor</th>
+            <th style="width:65px">IGSS</th>
+            <th style="width:65px">Antic.</th>
+            <th style="width:65px">Judic.</th>
+            <th style="width:65px">Prest.</th>
+            <th style="width:65px">ISR</th>
+          </tr>
+        </thead>
+        <tbody id="planillaBody"></tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3">TOTALES</td>
+            <td id="ftSueldo"></td>
+            <td id="ftHnum"></td>
+            <td id="ftHval"></td>
+            <td id="ftCom"></td>
+            <td id="ftSub"></td>
+            <td id="ftBonif"></td>
+            <td id="ftDev"></td>
+            <td id="ftIgss"></td>
+            <td id="ftAntic"></td>
+            <td id="ftJudic"></td>
+            <td id="ftPrest"></td>
+            <td id="ftIsr"></td>
+            <td id="ftDesc"></td>
+            <td id="ftLiq"></td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <p class="col-bonif-info">* Horas Extras = Numero x Valor por hora. Sub Total = Sueldo Ordinario + Horas Extras + Comisiones. IGSS cuota laboral = 4.83% sobre el Sub Total. Total Devengado = Sub Total + Bonificacion Incentivo. Total Descuento = IGSS + Anticipo + Judicial + Prestamo + ISR. Total Liquido = Total Devengado - Total Descuento.</p>
+  </div>
+</main>
+
+<script>
+const IGSS = 0.0483;
+let rows = [];
+let rowId = 0;
+
+function addRow() {
+  rows.push({
+    id: ++rowId, nombre: '', cargo: '', sueldo: '',
+    hnum: '', hval: '', com: '',
+    antic: '', judic: '', prest: '', isr: ''
+  });
+  renderTable();
+}
+
+function removeRow(id) {
+  rows = rows.filter(r => r.id !== id);
+  renderTable();
+}
+
+function updateRow(id, field, value) {
+  const r = rows.find(r => r.id === id);
+  if (r) { r[field] = value; renderTable(); }
+}
+
+function fmt(n) {
+  if (n === '' || n === null || isNaN(n)) return '';
+  return n.toLocaleString('es-GT',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function num(v) { return parseFloat(v) || 0; }
+
+function renderTable() {
+  const bonifVal = num(document.getElementById('metaBonif').value);
+  const tbody = document.getElementById('planillaBody');
+  tbody.innerHTML = '';
+
+  let totales = {sueldo:0, hnum:0, hval:0, com:0, sub:0, bonif:0, dev:0, igss:0, antic:0, judic:0, prest:0, isr:0, desc:0, liq:0};
+
+  rows.forEach((r, idx) => {
+    const sueldo  = num(r.sueldo);
+    const hnum    = num(r.hnum);
+    const hval    = num(r.hval);
+    const hextTot = hnum * hval;
+    const com     = num(r.com);
+    const sub     = sueldo + hextTot + com;
+    const igss   = sub * IGSS;
+    const dev    = sub + bonifVal;
+    const antic  = num(r.antic);
+    const judic  = num(r.judic);
+    const prest  = num(r.prest);
+    const isr    = num(r.isr);
+    const totDesc = igss + antic + judic + prest + isr;
+    const liq    = dev - totDesc;
+
+    totales.sueldo += sueldo;
+    totales.hnum   += hnum;
+    totales.hval   += hextTot;
+    totales.com    += com;
+    totales.sub    += sub;
+    totales.bonif  += bonifVal;
+    totales.dev    += dev;
+    totales.igss   += igss;
+    totales.antic  += antic;
+    totales.judic  += judic;
+    totales.prest  += prest;
+    totales.isr    += isr;
+    totales.desc   += totDesc;
+    totales.liq    += liq;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${idx+1}</td>
+      <td class="label-col"><input type="text" value="${r.nombre}" placeholder="Nombre completo" onchange="updateRow(${r.id},'nombre',this.value)"></td>
+      <td class="label-col"><input type="text" value="${r.cargo}" placeholder="Cargo" onchange="updateRow(${r.id},'cargo',this.value)"></td>
+      <td><input type="number" value="${r.sueldo}" min="0" step="0.01" placeholder="0.00" onchange="updateRow(${r.id},'sueldo',this.value)"></td>
+      <td><input type="number" value="${r.hnum}" min="0" step="1" placeholder="0" onchange="updateRow(${r.id},'hnum',this.value)"></td>
+      <td><input type="number" value="${r.hval}" min="0" step="0.01" placeholder="0.00" onchange="updateRow(${r.id},'hval',this.value)"></td>
+      <td><input type="number" value="${r.com}" min="0" step="0.01" placeholder="0.00" onchange="updateRow(${r.id},'com',this.value)"></td>
+      <td class="calc-cell">${fmt(sub)}</td>
+      <td class="calc-cell">${fmt(bonifVal)}</td>
+      <td class="calc-cell">${fmt(dev)}</td>
+      <td class="descuento-cell">${fmt(igss)}</td>
+      <td class="descuento-cell"><input type="number" value="${r.antic}" min="0" step="0.01" placeholder="0.00" onchange="updateRow(${r.id},'antic',this.value)"></td>
+      <td class="descuento-cell"><input type="number" value="${r.judic}" min="0" step="0.01" placeholder="0.00" onchange="updateRow(${r.id},'judic',this.value)"></td>
+      <td class="descuento-cell"><input type="number" value="${r.prest}" min="0" step="0.01" placeholder="0.00" onchange="updateRow(${r.id},'prest',this.value)"></td>
+      <td class="descuento-cell"><input type="number" value="${r.isr}" min="0" step="0.01" placeholder="0.00" onchange="updateRow(${r.id},'isr',this.value)"></td>
+      <td class="calc-cell">${fmt(totDesc)}</td>
+      <td class="total-liquido-cell">${fmt(liq)}</td>
+      <td><button class="btn btn-danger" onclick="removeRow(${r.id})">x</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Totales pie de tabla
+  document.getElementById('ftSueldo').textContent = fmt(totales.sueldo);
+  document.getElementById('ftHnum').textContent   = totales.hnum || '';
+  document.getElementById('ftHval').textContent   = fmt(totales.hval);
+  document.getElementById('ftCom').textContent    = fmt(totales.com);
+  document.getElementById('ftSub').textContent    = fmt(totales.sub);
+  document.getElementById('ftBonif').textContent  = fmt(totales.bonif);
+  document.getElementById('ftDev').textContent    = fmt(totales.dev);
+  document.getElementById('ftIgss').textContent   = fmt(totales.igss);
+  document.getElementById('ftAntic').textContent  = fmt(totales.antic);
+  document.getElementById('ftJudic').textContent  = fmt(totales.judic);
+  document.getElementById('ftPrest').textContent  = fmt(totales.prest);
+  document.getElementById('ftIsr').textContent    = fmt(totales.isr);
+  document.getElementById('ftDesc').textContent   = fmt(totales.desc);
+  document.getElementById('ftLiq').textContent    = fmt(totales.liq);
+
+  // Resumen superior
+  document.getElementById('statEmp').textContent  = rows.length;
+  document.getElementById('statDev').textContent  = 'Q ' + fmt(totales.dev);
+  document.getElementById('statDesc').textContent = 'Q ' + fmt(totales.desc);
+  document.getElementById('statLiq').textContent  = 'Q ' + fmt(totales.liq);
+}
+
+function clearAll() {
+  if (!confirm('Limpiar toda la planilla?')) return;
+  rows = []; rowId = 0; renderTable();
+}
+
+// Tabla vacia sin ejemplos
+renderTable();
+</script>
+</body>
+</html>
